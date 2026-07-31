@@ -158,3 +158,5 @@ tool is needed and where to install or configure it if the command is not found.
 If all commands complete successfully without errors, the development
 environment is ready for the AIDA chatbot case study. If a command is not found,
 follow its setup link, restart the terminal, and run the command again.
+
+![Viz Checklist](./viz_checklist.gif)

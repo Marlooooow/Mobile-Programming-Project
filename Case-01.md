@@ -1064,15 +1064,9 @@ After the basic case works, try one change at a time:
 
 # Glossary
 
-- **API:** A defined way for two programs to communicate.
-- **API key:** A credential that identifies a project when calling an API.
-- **APK:** An installable Android application package.
-- **Database:** Organized storage for application data.
-- **Emulator:** A virtual Android device running on a computer.
-- **Flutter:** Google's toolkit for building applications from one Dart codebase.
-- **Markdown:** Plain-text markers that represent formatting such as bold or lists.
-- **RLS:** Row Level Security; database rules that control which rows a user may access.
-- **Widget:** A Flutter building block for visible UI or layout behavior.
+Need help with an unfamiliar word, command, Flutter keyword, API concept, or
+Android term? Open the dedicated **[AIDA beginner glossary](Glossary.md)** for
+plain-language definitions, examples from this case, and additional references.
 
 # Additional resources
 
