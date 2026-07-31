@@ -9,22 +9,115 @@ import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import 'package:aida/main.dart';
+import 'package:aida/models/chat_message.dart';
+import 'package:aida/screens/chat_page.dart';
+import 'package:aida/services/ai_service.dart';
+import 'package:aida/services/chat_repository.dart';
 
 void main() {
-  testWidgets('Counter increments smoke test', (WidgetTester tester) async {
-    // Build our app and trigger a frame.
-    await tester.pumpWidget(const MyApp());
+  testWidgets('sends a message and displays the AI reply', (tester) async {
+    final repository = _MemoryMessageRepository();
+    await tester.pumpWidget(
+      AidaApp(aiService: _FakeAiService(), chatRepository: repository),
+    );
 
-    // Verify that our counter starts at 0.
-    expect(find.text('0'), findsOneWidget);
-    expect(find.text('1'), findsNothing);
+    expect(
+      find.text('Hello! I am AIDA. What would you like to learn today?'),
+      findsOneWidget,
+    );
 
-    // Tap the '+' icon and trigger a frame.
-    await tester.tap(find.byIcon(Icons.add));
-    await tester.pump();
+    await tester.enterText(find.byKey(const Key('messageField')), 'Hello');
+    await tester.tap(find.byKey(const Key('sendButton')));
+    await tester.pumpAndSettle();
 
-    // Verify that our counter has incremented.
-    expect(find.text('0'), findsNothing);
-    expect(find.text('1'), findsOneWidget);
+    expect(find.text('Hello'), findsOneWidget);
+    expect(find.text('Test reply'), findsOneWidget);
+    expect(repository.savedMessages, [
+      ('user', 'Hello'),
+      ('assistant', 'Test reply'),
+    ]);
   });
+
+  testWidgets('a history save failure does not prevent the AI reply', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      AidaApp(
+        aiService: _FakeAiService(),
+        chatRepository: _FailingMessageRepository(),
+      ),
+    );
+
+    await tester.enterText(find.byKey(const Key('messageField')), 'Hello');
+    await tester.tap(find.byKey(const Key('sendButton')));
+    await tester.pumpAndSettle();
+
+    expect(find.text('Test reply'), findsOneWidget);
+  });
+
+  testWidgets('renders assistant Markdown instead of showing its markers', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      const MaterialApp(
+        home: Scaffold(
+          body: MessageBubble(
+            message: ChatMessage(
+              text: 'This is **bold** and *italic*.',
+              isUser: false,
+            ),
+          ),
+        ),
+      ),
+    );
+
+    final markdownText = tester
+        .widgetList<SelectableText>(find.byType(SelectableText))
+        .firstWhere(
+          (widget) => widget.textSpan?.toPlainText().contains('bold') ?? false,
+        );
+    final span = markdownText.textSpan!;
+    expect(span.toPlainText(), 'This is bold and italic.');
+    expect(span.toPlainText(), isNot(contains('**')));
+    expect(_hasStyledText(span, 'bold', FontWeight.bold), isTrue);
+  });
+}
+
+bool _hasStyledText(InlineSpan span, String text, FontWeight weight) {
+  if (span is TextSpan) {
+    if (span.text == text && span.style?.fontWeight == weight) return true;
+    return span.children?.any((child) => _hasStyledText(child, text, weight)) ??
+        false;
+  }
+  return false;
+}
+
+class _FakeAiService implements AiService {
+  @override
+  Future<String> generateReply(String userMessage) async => 'Test reply';
+
+  @override
+  void close() {}
+}
+
+class _MemoryMessageRepository implements MessageRepository {
+  final savedMessages = <(String, String)>[];
+
+  @override
+  Future<void> saveMessage({
+    required String sender,
+    required String content,
+  }) async {
+    savedMessages.add((sender, content));
+  }
+}
+
+class _FailingMessageRepository implements MessageRepository {
+  @override
+  Future<void> saveMessage({
+    required String sender,
+    required String content,
+  }) async {
+    throw Exception('Database unavailable');
+  }
 }
