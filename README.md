@@ -6,28 +6,6 @@ Gemini, and Groq.
 Choose **one scaffold** based on how you prefer to learn. Both scaffolds lead to
 the same working Case 01 application.
 
-## Minimum checklist before starting
-
-Open a new terminal and run each command separately. The table explains why the
-tool is needed and where to install or configure it if the command is not found.
-
-### Command verification table
-
-| Command | Use case | Environment is ready when | Official installation or setup guide |
-| --- | --- | --- | --- |
-| `flutter --version` | Display the installed Flutter SDK version used to build AIDA. | A Flutter version and stable channel are displayed. | [Install Flutter](https://docs.flutter.dev/install/manual) |
-| `flutter doctor -v` | Inspect the complete Flutter and Android development environment. | Flutter and the Android toolchain have check marks with no blocking errors. | [Set up Flutter for Android](https://docs.flutter.dev/platform-integration/android/setup) |
-| `dart --version` | Verify the Dart language SDK used to write AIDA's source code. | A Dart SDK version is displayed. | [Get the Dart SDK](https://dart.dev/get-dart) |
-| `java --version` | Verify Java for Gradle and Android APK compilation. | A Java runtime version is displayed. | [Install Android Studio](https://developer.android.com/studio/install) |
-| `adb version` | Detect, install, launch, and debug AIDA on an emulator or Android phone. | The Android Debug Bridge version and installation path are displayed. | [Install Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools) |
-| `git --version` | Clone the AIDA repository and track code changes. | A Git version is displayed. | [Install Git](https://git-scm.com/downloads) |
-| `code --version` | Open the project in Visual Studio Code from the terminal. | The Visual Studio Code version is displayed. | [Set up Visual Studio Code](https://code.visualstudio.com/docs/setup/setup-overview) |
-| `emulator --version` | Create or launch the virtual Android device used to test AIDA. | The Android Emulator version is displayed. | [Install and configure the Android Emulator](https://developer.android.com/studio/run/emulator) |
-
-If all commands complete successfully without errors, the development
-environment is ready for the AIDA chatbot case study. If a command is not found,
-follow its setup link, restart the terminal, and run the command again.
-
 ## Choose your scaffold
 
 | Scaffold | Best for | Starting point |
@@ -157,3 +135,26 @@ Both scaffolds require:
 > **Security reminder:** `.env` is ignored by Git, but values bundled in a
 > Flutter application can still be extracted from its APK. Use this setup for
 > learning and local development; keep production AI keys on a secure backend.
+
+
+## Minimum checklist before starting
+
+Open a new terminal and run each command separately. The table explains why the
+tool is needed and where to install or configure it if the command is not found.
+
+### Command verification table
+
+| Command | Use case | Environment is ready when | Official installation or setup guide |
+| --- | --- | --- | --- |
+| `flutter --version` | Display the installed Flutter SDK version used to build AIDA. | A Flutter version and stable channel are displayed. | [Install Flutter](https://docs.flutter.dev/install/manual) |
+| `flutter doctor -v` | Inspect the complete Flutter and Android development environment. | Flutter and the Android toolchain have check marks with no blocking errors. | [Set up Flutter for Android](https://docs.flutter.dev/platform-integration/android/setup) |
+| `dart --version` | Verify the Dart language SDK used to write AIDA's source code. | A Dart SDK version is displayed. | [Get the Dart SDK](https://dart.dev/get-dart) |
+| `java --version` | Verify Java for Gradle and Android APK compilation. | A Java runtime version is displayed. | [Install Android Studio](https://developer.android.com/studio/install) |
+| `adb version` | Detect, install, launch, and debug AIDA on an emulator or Android phone. | The Android Debug Bridge version and installation path are displayed. | [Install Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools) |
+| `git --version` | Clone the AIDA repository and track code changes. | A Git version is displayed. | [Install Git](https://git-scm.com/downloads) |
+| `code --version` | Open the project in Visual Studio Code from the terminal. | The Visual Studio Code version is displayed. | [Set up Visual Studio Code](https://code.visualstudio.com/docs/setup/setup-overview) |
+| `emulator --version` | Create or launch the virtual Android device used to test AIDA. | The Android Emulator version is displayed. | [Install and configure the Android Emulator](https://developer.android.com/studio/run/emulator) |
+
+If all commands complete successfully without errors, the development
+environment is ready for the AIDA chatbot case study. If a command is not found,
+follow its setup link, restart the terminal, and run the command again.
