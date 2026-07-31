@@ -1,80 +1,102 @@
 # AIDA — Flutter AI Chatbot
 
-AIDA is a beginner-focused Android chatbot built with Flutter. It can generate
-Markdown-formatted answers through Gemini or Groq and save conversation messages
-to Supabase.
+Build and explore **AIDA**, an Android chatbot that uses Flutter, Supabase,
+Gemini, and Groq.
 
-This repository accompanies **Case 01**, a learn-by-doing workshop for learners
-with no previous programming or technology background.
+Choose **one scaffold** based on how you prefer to learn. Both scaffolds lead to
+the same working Case 01 application.
 
-## Documentation
+## Minimum checklist before starting
 
-- **[Start Case 01: Build AIDA step by step](Case-01.md)**
-- [Configuration](#configuration)
-- [Run and test](#run-and-test)
-- [Build the APK](#build-the-apk)
-- [Additional resources](#additional-resources)
+Open a new terminal and run each command separately. The table explains why the
+tool is needed and where to install or configure it if the command is not found.
 
-## Case 01 learning outcomes
+### Command verification table
 
-After completing the guided case, learners can:
+| Command | Use case | Environment is ready when | Official installation or setup guide |
+| --- | --- | --- | --- |
+| `flutter --version` | Display the installed Flutter SDK version used to build AIDA. | A Flutter version and stable channel are displayed. | [Install Flutter](https://docs.flutter.dev/install/manual) |
+| `flutter doctor -v` | Inspect the complete Flutter and Android development environment. | Flutter and the Android toolchain have check marks with no blocking errors. | [Set up Flutter for Android](https://docs.flutter.dev/platform-integration/android/setup) |
+| `dart --version` | Verify the Dart language SDK used to write AIDA's source code. | A Dart SDK version is displayed. | [Get the Dart SDK](https://dart.dev/get-dart) |
+| `java --version` | Verify Java for Gradle and Android APK compilation. | A Java runtime version is displayed. | [Install Android Studio](https://developer.android.com/studio/install) |
+| `adb version` | Detect, install, launch, and debug AIDA on an emulator or Android phone. | The Android Debug Bridge version and installation path are displayed. | [Install Android SDK Platform-Tools](https://developer.android.com/tools/releases/platform-tools) |
+| `git --version` | Clone the AIDA repository and track code changes. | A Git version is displayed. | [Install Git](https://git-scm.com/downloads) |
+| `code --version` | Open the project in Visual Studio Code from the terminal. | The Visual Studio Code version is displayed. | [Set up Visual Studio Code](https://code.visualstudio.com/docs/setup/setup-overview) |
+| `emulator --version` | Create or launch the virtual Android device used to test AIDA. | The Android Emulator version is displayed. | [Install and configure the Android Emulator](https://developer.android.com/studio/run/emulator) |
 
-- Install and validate Flutter and the Android development toolchain.
-- Create and organize a Flutter project.
-- Create a Supabase table with basic Row Level Security.
-- Configure Gemini and Groq without placing keys in Dart source files.
-- Build an interactive chat interface from Flutter widgets.
-- Switch AI providers using one environment flag.
-- Render AI responses as readable Markdown.
-- Write and run basic logic and widget tests.
-- Run AIDA on an emulator and physical Android phone.
-- Produce an installable Android APK.
+If all commands complete successfully without errors, the development
+environment is ready for the AIDA chatbot case study. If a command is not found,
+follow its setup link, restart the terminal, and run the command again.
 
-## Features
+## Choose your scaffold
 
-- Gemini and Groq provider selection through `AI_PROVIDER`.
-- Gemini `gemini-3.6-flash` integration.
-- Groq `llama-3.1-8b-instant` integration.
-- Supabase message persistence.
-- Markdown-formatted assistant responses.
-- Friendly timeout, connection, configuration, and response errors.
-- Dependency-injected services for reliable tests.
-- Responsive Material 3 chat interface.
+| Scaffold | Best for | Starting point |
+| --- | --- | --- |
+| **Scaffold 1: Build-It Path** | Beginners who want to learn by creating AIDA one step at a time. | Start with the guided case study. |
+| **Scaffold 2: Clone-and-Go Path** | Learners who want to download the completed code, configure it, and begin experimenting. | Start with `git clone`. |
 
-## Architecture
+---
 
-```text
-lib/
-├── main.dart                     # Configuration and application startup
-├── models/
-│   └── chat_message.dart         # Chat message data
-├── screens/
-│   └── chat_page.dart            # Chat interface and interaction flow
-└── services/
-    ├── ai_service.dart           # Shared provider contract and provider flag
-    ├── chat_repository.dart      # Supabase message persistence
-    ├── gemini_service.dart       # Gemini HTTP integration
-    └── groq_service.dart         # Groq HTTP integration
+## Scaffold 1 — Build-It Path
+
+**Build it. Test it. Understand it.**
+
+Choose this scaffold if you want a complete learn-by-doing journey. You will
+start with installation, type the important code, connect each service, test the
+application, and produce an APK.
+
+### What you will do
+
+1. Install Flutter and Android Studio.
+2. Create a Flutter project.
+3. Connect Supabase.
+4. Configure Gemini and Groq.
+5. Build the chatbot interface.
+6. Generate and display AI responses.
+7. Write basic tests.
+8. Run AIDA on an emulator and Android phone.
+9. Build the APK and prepare your evidence submission.
+
+### Start here
+
+**[Open the complete Build-It Path in Case-01.md](Case-01.md)**
+
+Follow the steps in order. Each step includes an estimated completion time,
+beginner explanations, reflection questions, completed-code references, and
+evidence requirements.
+
+---
+
+## Scaffold 2 — Clone-and-Go Path
+
+**Clone it. Configure it. Run it.**
+
+Choose this scaffold if you want to begin with the completed AIDA codebase. You
+can inspect how it works, switch AI providers, run tests, and add your own UI
+improvements.
+
+### 1. Clone the repository
+
+```powershell
+git clone https://github.com/cbatuic/aida.git
+cd aida
 ```
 
-The screen depends on shared interfaces rather than a specific database or AI
-provider. This keeps provider switching simple and allows tests to use safe fake
-services instead of real network requests.
+### 2. Create your local environment file
 
-## Prerequisites
+On Windows PowerShell:
 
-- [Flutter SDK](https://docs.flutter.dev/install/manual)
-- [Android Studio](https://developer.android.com/studio/install)
-- A [Supabase](https://supabase.com/) project
-- A [Gemini API key](https://ai.google.dev/gemini-api/docs/api-key)
-- A [Groq API key](https://console.groq.com/docs/quickstart) when using Groq
+```powershell
+Copy-Item .env.example .env
+```
 
-For complete installation and account instructions, follow
-[Case-01.md](Case-01.md).
+On macOS or Linux:
 
-## Configuration
+```bash
+cp .env.example .env
+```
 
-Copy `.env.example` to `.env`, then replace the placeholders with your local values:
+Open `.env` and replace the placeholders with your own values:
 
 ```dotenv
 AI_PROVIDER=gemini
@@ -84,96 +106,54 @@ GEMINI_API_KEY=your_gemini_api_key
 GROQ_API_KEY=your_groq_api_key
 ```
 
-Set `AI_PROVIDER` to either:
+Set `AI_PROVIDER` to `gemini` or `groq`. Only the API key for the selected AI
+provider is required.
 
-- `gemini` — requires `GEMINI_API_KEY`
-- `groq` — requires `GROQ_API_KEY`
-
-The Supabase URL and publishable key are always required. `.env` and its local
-variants are excluded by `.gitignore`; `.env.example` contains placeholders and
-is safe to commit.
-
-> **Security:** Values in a Flutter `.env` asset are bundled into the application
-> and can be extracted from an APK. Use this configuration for learning and local
-> development only. In production, keep Gemini and Groq credentials on a secure
-> backend or Supabase Edge Function.
-
-## Install dependencies
+### 3. Install packages
 
 ```powershell
 flutter pub get
 ```
 
-## Run and test
-
-Start an emulator or connect an Android phone, then run:
-
-```powershell
-flutter run
-```
-
-Run static analysis and the automated test suite:
+### 4. Run the quality checks
 
 ```powershell
 flutter analyze
 flutter test
 ```
 
-Changing `.env`, adding an asset, or switching `AI_PROVIDER` requires stopping
-and restarting the application rather than using hot reload.
+### 5. Run AIDA
 
-## Build the APK
+Start an Android emulator or connect an Android phone, then run:
 
-Build one release APK:
+```powershell
+flutter run
+```
+
+### 6. Build the APK
 
 ```powershell
 flutter build apk
 ```
 
-Build smaller architecture-specific release APKs:
+The APK is created under `build/app/outputs/flutter-apk/`.
 
-```powershell
-flutter build apk --split-per-abi
-```
+For the Supabase table setup, learning activities, UI challenge, reflection
+questions, and evidence rubric, use the relevant sections of
+**[Case-01.md](Case-01.md)**.
 
-Flutter writes APK files under `build/app/outputs/flutter-apk/`. See the official
-[Flutter Android release guide](https://docs.flutter.dev/deployment/android) for
-signing, app bundles, and Play Store preparation.
+---
 
-## Model lifecycle notice
+## Before you begin
 
-The project intentionally uses Groq's `llama-3.1-8b-instant` model for this case.
-Groq has announced an August 16, 2026 shutdown for this model on free and
-developer tiers, recommending `openai/gpt-oss-20b` as its replacement. Check the
-[Groq deprecation schedule](https://console.groq.com/docs/deprecations) before
-running the Groq exercise after that date.
+Both scaffolds require:
 
-## Additional resources
+- [Flutter SDK](https://docs.flutter.dev/install/manual)
+- [Android Studio](https://developer.android.com/studio/install)
+- A [Supabase](https://supabase.com/) project
+- A [Gemini API key](https://ai.google.dev/gemini-api/docs/api-key) or
+  [Groq API key](https://console.groq.com/docs/quickstart)
 
-### Flutter and Android
-
-- [Learn Flutter](https://docs.flutter.dev/get-started/learn-flutter)
-- [Flutter widget catalog](https://docs.flutter.dev/ui/widgets)
-- [Testing Flutter apps](https://docs.flutter.dev/testing/overview)
-- [Create Android virtual devices](https://developer.android.com/studio/run/managing-avds)
-- [Run on a physical Android device](https://developer.android.com/studio/run/device)
-
-### Supabase
-
-- [Supabase Flutter quickstart](https://supabase.com/docs/guides/getting-started/quickstarts/flutter)
-- [Supabase Flutter client](https://supabase.com/docs/reference/dart/installing)
-- [Row Level Security](https://supabase.com/docs/guides/database/postgres/row-level-security)
-
-### AI providers
-
-- [Gemini API documentation](https://ai.google.dev/gemini-api/docs)
-- [Gemini API troubleshooting](https://ai.google.dev/gemini-api/docs/troubleshooting)
-- [Groq quickstart](https://console.groq.com/docs/quickstart)
-- [Groq API reference](https://console.groq.com/docs/api-reference)
-
-## Project status
-
-Case 01 is a teaching project intended for guided demonstrations and local
-experimentation. Before public production use, add authentication, per-user RLS
-policies, server-side AI credentials, abuse protection, release signing, and a
-privacy policy.
+> **Security reminder:** `.env` is ignored by Git, but values bundled in a
+> Flutter application can still be extracted from its APK. Use this setup for
+> learning and local development; keep production AI keys on a secure backend.

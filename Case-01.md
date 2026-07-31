@@ -29,15 +29,12 @@ By the end of this case, you will be able to:
 
 The app has four main parts:
 
-```text
-Chat screen
-   ├── sends the question ──> selected AI service ──> Gemini or Groq
-   ├── shows the answer  <───────────────────────────┘
-   └── saves messages ──────> Supabase messages table
-```
+![AIDA 4 Main Parts](./aida_main_parts.png)
 
 **Purpose:** This map shows how the screen, AI provider, and database work
 together. The screen coordinates the work while each service has one clear job.
+
+![AIDA Sequence Diagram](./aida_seq_diagram.png)
 
 ## Before you begin
 
@@ -48,11 +45,14 @@ Prepare the following:
 - A Google account for Gemini and a Groq account if you want to try both providers.
 - A free Supabase account.
 - An Android phone and USB cable for the physical-device exercise.
-- About 2–3 hours for a first guided attempt.
+- About 5–7 hours for a first guided attempt. Installation and downloads may
+  take longer on slower computers or internet connections.
 
 ---
 
 # Step 1 — Install Flutter SDK and Android Studio
+
+> **Estimated time:** 45–60 minutes
 
 ## 1.1 Install Flutter
 
@@ -92,9 +92,22 @@ flutter doctor --android-licenses
 **Checkpoint:** Run `flutter doctor`. Flutter and the Android toolchain should
 have green check marks.
 
+### Reflection
+
+What installation problem did you encounter, and what action helped you solve
+or better understand it? Share one moment when a warning changed into a green
+check mark.
+
+### Completed code reference
+
+- [AIDA repository and prerequisites](https://github.com/cbatuic/aida#prerequisites)
+- [Completed Case 01 guide](https://github.com/cbatuic/aida/blob/main/Case-01.md)
+
 ---
 
 # Step 2 — Create a Flutter project
+
+> **Estimated time:** 20–30 minutes
 
 ## 2.1 Generate the starter project
 
@@ -174,9 +187,22 @@ permission. AIDA needs the internet to contact Supabase and the AI APIs.
 <uses-permission android:name="android.permission.INTERNET"/>
 ```
 
+### Reflection
+
+Which project folder or file made the most sense to you, and which one is still
+unclear? Explain in your own words what you think `lib` and `pubspec.yaml` do.
+
+### Completed code reference
+
+- [Flutter dependencies and assets (`pubspec.yaml`)](https://github.com/cbatuic/aida/blob/main/pubspec.yaml)
+- [Completed `lib` folder](https://github.com/cbatuic/aida/tree/main/lib)
+- [Android internet permission](https://github.com/cbatuic/aida/blob/main/android/app/src/main/AndroidManifest.xml)
+
 ---
 
 # Step 3 — Create a Supabase project and connect it
+
+> **Estimated time:** 30–45 minutes
 
 ## 3.1 Create the cloud database
 
@@ -272,9 +298,22 @@ class ChatRepository implements MessageRepository {
 The completed project uses this same repository in
 [`lib/services/chat_repository.dart`](lib/services/chat_repository.dart).
 
+### Reflection
+
+After viewing a saved message in the Supabase Table Editor, how did your idea of
+a “database” change? Describe the connection between one chat bubble and one
+database row.
+
+### Completed code reference
+
+- [Supabase message repository](https://github.com/cbatuic/aida/blob/main/lib/services/chat_repository.dart)
+- [Supabase initialization in `main.dart`](https://github.com/cbatuic/aida/blob/main/lib/main.dart)
+
 ---
 
 # Step 4 — Add Gemini and Groq API keys
+
+> **Estimated time:** 20–30 minutes
 
 ## 4.1 Create the API keys
 
@@ -340,9 +379,22 @@ GROQ_API_KEY=your_groq_api_key
 > and can be extracted. For production, send AI requests through your own secure
 > backend or Supabase Edge Function and keep provider keys there.
 
+### Reflection
+
+Why should an API key never be pasted directly into a public repository? Share
+how the `.env`, `.env.example`, and `.gitignore` files have different purposes.
+
+### Completed code reference
+
+- [Safe environment template (`.env.example`)](https://github.com/cbatuic/aida/blob/main/.env.example)
+- [Environment ignore rules (`.gitignore`)](https://github.com/cbatuic/aida/blob/main/.gitignore)
+- [Environment loading and validation](https://github.com/cbatuic/aida/blob/main/lib/main.dart)
+
 ---
 
 # Step 5 — Build a simple chatbot interface
+
+> **Estimated time:** 45–60 minutes
 
 ## 5.1 Create the message model
 
@@ -512,9 +564,21 @@ child: message.isUser
 **Checkpoint:** The interface should now show a welcome bubble, an input field,
 and a send button. The AI connection comes next.
 
+### Reflection
+
+Which Flutter widget had the most visible effect on your screen? Describe one
+change you made and what you observed after running or reloading the app.
+
+### Completed code reference
+
+- [Chat message model](https://github.com/cbatuic/aida/blob/main/lib/models/chat_message.dart)
+- [Completed chat interface and Markdown bubbles](https://github.com/cbatuic/aida/blob/main/lib/screens/chat_page.dart)
+
 ---
 
 # Step 6 — Generate AI responses with Gemini and Groq
+
+> **Estimated time:** 50–70 minutes
 
 ## 6.1 Create a shared AI contract
 
@@ -685,9 +749,23 @@ Future<void> main() async {
 using a cooking analogy.” Then stop the app, change the flag to `groq`, restart,
 and ask the same question.
 
+### Reflection
+
+Compare the answers from Gemini and Groq. What differences did you notice in
+speed, detail, tone, or formatting, and which response was more useful to you?
+
+### Completed code reference
+
+- [Shared AI provider contract](https://github.com/cbatuic/aida/blob/main/lib/services/ai_service.dart)
+- [Gemini service integration](https://github.com/cbatuic/aida/blob/main/lib/services/gemini_service.dart)
+- [Groq service integration](https://github.com/cbatuic/aida/blob/main/lib/services/groq_service.dart)
+- [Provider selection at startup](https://github.com/cbatuic/aida/blob/main/lib/main.dart)
+
 ---
 
 # Step 7 — Write one widget test and one logic test
+
+> **Estimated time:** 25–35 minutes
 
 Tests are small programs that check whether another part of the program behaves
 as expected. They let you make changes with less fear of breaking old behavior.
@@ -783,9 +861,22 @@ problems without launching the application.
 flutter analyze
 ```
 
+### Reflection
+
+How did it feel to see a test pass or fail? Explain how a test could help you
+change the app later without accidentally breaking a feature that already works.
+
+### Completed code reference
+
+- [Widget tests](https://github.com/cbatuic/aida/blob/main/test/widget_test.dart)
+- [Gemini logic and request tests](https://github.com/cbatuic/aida/blob/main/test/gemini_service_test.dart)
+- [Provider-selection and Groq tests](https://github.com/cbatuic/aida/blob/main/test/groq_service_test.dart)
+
 ---
 
 # Step 8 — Run on an emulator and an Android phone
+
+> **Estimated time:** 30–45 minutes
 
 ## 8.1 Run on an Android Emulator
 
@@ -848,9 +939,22 @@ flutter run -d YOUR_DEVICE_ID
 Always test on a real phone before sharing an application. A phone can reveal
 keyboard, network, performance, and screen-size behavior that differs from an emulator.
 
+### Reflection
+
+What difference did you notice between the emulator and the physical phone?
+Share one issue or improvement that became visible only when using a real device.
+
+### Completed code reference
+
+- [Run and test instructions](https://github.com/cbatuic/aida#run-and-test)
+- [Android application configuration](https://github.com/cbatuic/aida/tree/main/android/app)
+- [Completed AIDA application source](https://github.com/cbatuic/aida/tree/main/lib)
+
 ---
 
 # Step 9 — Build the APK
+
+> **Estimated time:** 10–20 minutes
 
 ## 9.1 Build one APK for classroom sharing
 
@@ -882,6 +986,18 @@ flutter build apk --split-per-abi
 For Google Play distribution, Flutter recommends an Android App Bundle instead
 of an APK. Release publishing also requires a unique application ID, versioning,
 an upload keystore, privacy review, and Play Console preparation.
+
+### Reflection
+
+What did producing an APK mean to you compared with only seeing source code in
+Android Studio? Describe how you would demonstrate the finished AIDA app to
+someone who has never seen it.
+
+### Completed code reference
+
+- [APK build instructions](https://github.com/cbatuic/aida#build-the-apk)
+- [Android Gradle build configuration](https://github.com/cbatuic/aida/blob/main/android/app/build.gradle.kts)
+- [Complete AIDA repository](https://github.com/cbatuic/aida)
 
 ---
 
@@ -996,3 +1112,59 @@ After the basic case works, try one change at a time:
 You have completed Case 01 when AIDA can answer through both configured providers,
 save messages to Supabase, pass its tests, and run on both a virtual and physical
 Android device.
+
+# Evidence submission and scoring
+
+## Total points: 100 maximum
+
+Choose **one** evidence option from the table below. Challenge points are added
+to the selected evidence score, but the final Case 01 grade cannot exceed 100
+points.
+
+| Evidence option | Submission instructions | Maximum base points |
+| --- | --- | ---: |
+| **Evidence A** | Submit one recording of your entire progress, starting with installation and ending with the complete working AIDA demonstration. Include a clear voice-over that explains what you are doing, important code or settings, problems encountered, and how you verified the result. | **95 points** |
+| **Evidence B** | Submit one recording of the completed working case demonstration. Include a clear voice-over that demonstrates the chat interface, Gemini and Groq provider switching, Supabase message records, tests, phone or emulator execution, and the built APK. | **85 points** |
+| **Evidence C** | Submit one PDF containing ordered screenshots from the case. Add a short explanation below every screenshot stating the step shown, what you did, and what result proves that the step worked. | **80 points** |
+
+## Submission checklist
+
+1. Name the submission using the format `Case-01_YourName_Evidence-A`,
+   `Case-01_YourName_Evidence-B`, or `Case-01_YourName_Evidence-C`.
+2. Make sure text, terminal output, emulator screens, and phone screens are
+   readable. Do not expose real API keys, passwords, or private `.env` values.
+3. For video evidence, use a common format such as MP4, speak clearly, and show
+   the important result of every required task included in your evidence option.
+4. For PDF evidence, arrange screenshots in Steps 1–9 order and use short,
+   beginner-friendly explanations rather than screenshots without context.
+5. Before submitting, open the video or PDF yourself and confirm that it plays
+   or displays correctly from beginning to end.
+
+## Case challenge — earn up to 10 additional points
+
+Improve AIDA by adding **five UI improvements** that make the chatbot easier to
+use and more attractive. Choose your own ideas and apply good UI design. Each
+completed and working improvement is worth **2 points**, for a maximum of **10
+challenge points**.
+
+| Challenge item | What to submit or demonstrate | Points |
+| --- | --- | ---: |
+| UI improvement 1 | Show the working improvement and explain how it makes AIDA easier to use or more attractive. | 2 |
+| UI improvement 2 | Show the working improvement and explain how it makes AIDA easier to use or more attractive. | 2 |
+| UI improvement 3 | Show the working improvement and explain how it makes AIDA easier to use or more attractive. | 2 |
+| UI improvement 4 | Show the working improvement and explain how it makes AIDA easier to use or more attractive. | 2 |
+| UI improvement 5 | Show the working improvement and explain how it makes AIDA easier to use or more attractive. | 2 |
+| **Maximum challenge score** | Five completed, working, and explained UI improvements. | **10** |
+
+Possible ideas include a dark-mode switch, clear-chat button, copy-response
+button, active-provider badge, timestamps, empty-state illustration, improved
+loading animation, retry button, message status indicator, or accessible color
+and text-size controls. You may use different ideas.
+
+### Score examples
+
+| Selected evidence | Base score available | Challenge available | Highest possible final score |
+| --- | ---: | ---: | ---: |
+| Evidence A | 95 | 10 | **100** because the case is capped at 100 |
+| Evidence B | 85 | 10 | **95** |
+| Evidence C | 80 | 10 | **90** |
