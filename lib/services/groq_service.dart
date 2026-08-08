@@ -1,32 +1,7 @@
-import 'dart:async';
 import 'dart:convert';
-
 import 'package:http/http.dart' as http;
 
 import 'ai_service.dart';
-
-String extractGroqText(Map<String, dynamic> json) {
-  final choices = json['choices'];
-
-  if (choices is! List || choices.isEmpty) {
-    throw const FormatException('Groq returned no choices.');
-  }
-
-  final choice = choices.first;
-  final message = choice is Map ? choice['message'] : null;
-
-  if (message is! Map) {
-    throw const FormatException('Groq returned no message.');
-  }
-
-  final text = message['content'];
-
-  if (text is! String || text.trim().isEmpty) {
-    throw const FormatException('Groq returned empty text.');
-  }
-
-  return text.trim();
-}
 
 class GroqService implements AiService {
   GroqService({
@@ -34,8 +9,8 @@ class GroqService implements AiService {
     http.Client? client,
     this.model = 'llama-3.1-8b-instant',
     this.requestTimeout = const Duration(seconds: 30),
-  }) : _client = client ?? http.Client(),
-       _ownsClient = client == null;
+  })  : _client = client ?? http.Client(),
+        _ownsClient = client == null;
 
   final String apiKey;
   final String model;
@@ -45,40 +20,76 @@ class GroqService implements AiService {
 
   @override
   Future<String> generateReply(String userMessage) async {
+    if (apiKey.trim().isEmpty) {
+      throw const AiServiceException('Groq API key is not configured.');
+    }
     final normalizedApiKey = apiKey.trim();
     final normalizedMessage = userMessage.trim();
     if (normalizedApiKey.isEmpty) {
       throw const AiServiceException(
-        'Groq is not configured. Add GROQ_API_KEY and restart the app.',
+        'Groq is not configured. Add Groq_API_KEY and restart the app.',
       );
     }
     if (normalizedMessage.isEmpty) {
       throw const AiServiceException('Please enter a message first.');
     }
-
-    final uri = Uri.parse('https://api.groq.com/openai/v1/chat/completions');
-
     late final http.Response response;
     try {
       response = await _client
           .post(
-            uri,
+            Uri.parse('https://api.groq.com/openai/v1/chat/completions'),
             headers: {
+              'Authorization': 'Bearer ${apiKey.trim()}',
               'Content-Type': 'application/json',
-              'Authorization': 'Bearer $normalizedApiKey',
             },
             body: jsonEncode({
               'model': model,
               'messages': [
                 {
                   'role': 'system',
-                  'content':
-                      'You are AIDA, a friendly beginner tutor. '
-                      'Answer the user directly and completely. Do not begin '
-                      'with a greeting, repeat the question, or merely offer '
-                      'to help. Use plain language, short paragraphs, Markdown '
-                      'formatting, and practical examples. Keep normal answers '
-                      'under 300 words.',
+                  'content': 'You are AIDA, an AI philosophy discussion companion. '
+                      'Your purpose is to help users explore, question, and discuss philosophy. '
+                      'Focus on philosophy and closely related areas such as ethics, logic, '
+                      'metaphysics, epistemology, existentialism, political philosophy, '
+                      'philosophy of mind, aesthetics, and the history of philosophical thought. '
+                      'Do not act as a general-purpose assistant for unrelated topics. '
+                      '\n\n'
+                      'Engage with the user as a thoughtful philosophical discussion partner, '
+                      'not merely as a teacher giving answers. Explain philosophical ideas '
+                      'clearly in plain language while preserving their nuance. When appropriate, '
+                      'present multiple philosophical perspectives and explain the reasoning '
+                      'behind each position. Do not present one philosophical position as '
+                      'objectively correct when the issue is genuinely open to philosophical debate. '
+                      '\n\n'
+                      'Challenge the user respectfully when their reasoning contains questionable '
+                      'assumptions, contradictions, weak arguments, or logical fallacies. '
+                      'Ask thought-provoking questions when they can deepen the discussion, '
+                      'but answer directly when a direct answer is appropriate. Encourage the '
+                      'user to examine their assumptions and develop their own philosophical position. '
+                      '\n\n'
+                      'Use thought experiments, analogies, examples, and philosophical scenarios '
+                      'when they help clarify an idea. When discussing philosophers, accurately '
+                      'distinguish between what the philosopher actually argued and your own '
+                      'interpretation. Do not invent philosophical arguments, books, ideas, '
+                      'or quotations. '
+                      '\n\n'
+                      'When the user asks for a philosophical quote, provide relevant quotes '
+                      'from philosophers or philosophical works when you can do so accurately. '
+                      'Include the philosopher’s name and, when known, the work or source. '
+                      'Never invent or falsely attribute a quote. If the exact wording is '
+                      'uncertain, clearly identify it as a paraphrase rather than presenting '
+                      'it as an exact quotation. '
+                      '\n\n'
+                      'You may discuss famous philosophers, philosophical schools, arguments, '
+                      'thought experiments, and historical philosophical debates. When comparing '
+                      'philosophers, explain both their similarities and differences fairly. '
+                      '\n\n'
+                      'Do not begin with a greeting, repeat the user’s question, or merely '
+                      'offer to help. Keep the conversation natural, intellectually curious, '
+                      'respectful, and open-minded. Avoid unnecessary academic jargon, but '
+                      'introduce important philosophical terms when useful and explain them briefly. '
+                      'Use short paragraphs and Markdown formatting. Normal responses should '
+                      'be under 400 words unless the user asks for a deeper or more detailed analysis.',
                 },
                 {'role': 'user', 'content': normalizedMessage},
               ],
@@ -87,56 +98,34 @@ class GroqService implements AiService {
             }),
           )
           .timeout(requestTimeout);
-    } on TimeoutException {
-      throw const AiServiceException(
-        'Groq took too long to respond. Please try again.',
-      );
     } on http.ClientException {
+      throw const AiServiceException(
+        'Could not connect to Groq. Check your connection and try again.',
+      );
+    } on Exception {
       throw const AiServiceException(
         'Could not connect to Groq. Check your connection and try again.',
       );
     }
 
-    final json = _decodeResponse(response.body);
-
-    if (response.statusCode < 200 || response.statusCode >= 300) {
-      final error = json['error'];
-      final nestedMessage = error is Map ? error['message'] : null;
-      final topLevelMessage = json['message'];
-      final apiMessage = nestedMessage is String
-          ? nestedMessage
-          : topLevelMessage is String
-          ? topLevelMessage
-          : null;
-      throw AiServiceException(
-        apiMessage != null && apiMessage.trim().isNotEmpty
-            ? apiMessage.trim()
-            : 'Groq returned an error. Please try again.',
-        statusCode: response.statusCode,
-      );
+    if (response.statusCode == 200) {
+      final data = jsonDecode(response.body);
+      final content = data['choices']?[0]?['message']?['content'];
+      if (content is String && content.isNotEmpty) {
+        return content;
+      }
+      throw const AiServiceException('Groq returned an empty reply.');
     }
 
-    try {
-      return extractGroqText(json);
-    } on FormatException {
-      throw const AiServiceException(
-        'Groq returned an unexpected response. Please try again.',
-      );
-    }
-  }
-
-  Map<String, dynamic> _decodeResponse(String body) {
-    if (body.trim().isEmpty) return <String, dynamic>{};
-    try {
-      final decoded = jsonDecode(body);
-      return decoded is Map<String, dynamic> ? decoded : <String, dynamic>{};
-    } on FormatException {
-      return <String, dynamic>{};
-    }
+    throw const AiServiceException(
+      'Could not connect to Groq. Check your connection and try again.',
+    );
   }
 
   @override
   void close() {
-    if (_ownsClient) _client.close();
+    if (_ownsClient) {
+      _client.close();
+    }
   }
 }

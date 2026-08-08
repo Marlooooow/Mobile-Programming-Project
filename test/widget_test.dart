@@ -105,6 +105,7 @@ class _MemoryMessageRepository implements MessageRepository {
 
   @override
   Future<void> saveMessage({
+    required String conversationId,
     required String sender,
     required String content,
   }) async {
@@ -115,6 +116,7 @@ class _MemoryMessageRepository implements MessageRepository {
 class _FailingMessageRepository implements MessageRepository {
   @override
   Future<void> saveMessage({
+    required String conversationId,
     required String sender,
     required String content,
   }) async {

@@ -1,134 +1,130 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:provider/provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 
+import 'theme/app_theme.dart';
+import 'providers/theme_provider.dart';
+import 'providers/auth_provider.dart';
+import 'viewmodels/chat_viewmodel.dart';
+import 'views/splash_view.dart';
 import 'screens/chat_page.dart';
 import 'services/ai_service.dart';
-import 'services/chat_repository.dart';
-import 'services/gemini_service.dart';
-import 'services/groq_service.dart';
+import 'services/conversation_repository.dart';
+import 'services/chat_repository.dart' as legacy_chat_repository;
+import 'models/conversation.dart';
+import 'models/chat_message.dart';
 
-Future<void> main() async {
-  WidgetsFlutterBinding.ensureInitialized();
+class _LegacyMessageRepositoryAdapter implements ConversationRepository {
+  _LegacyMessageRepositoryAdapter(this._repo);
 
-  try {
-    await dotenv.load(fileName: '.env');
-  } catch (error) {
-    runApp(
-      const StartupErrorApp(
-        message:
-            'Could not load .env. Copy .env.example to .env and add your configuration.',
-      ),
+  final legacy_chat_repository.MessageRepository _repo;
+
+  @override
+  Future<List<Conversation>> fetchRecentConversations() async => [];
+
+  @override
+  Future<String> createConversation({required String title}) async => '';
+
+  @override
+  Future<List<ChatMessage>> fetchMessages(String conversationId) async => [];
+
+  @override
+  Future<void> saveMessage({
+    required String conversationId,
+    required String role,
+    required String content,
+  }) async {
+    await _repo.saveMessage(
+      conversationId: conversationId,
+      sender: role,
+      content: content,
     );
-    return;
   }
-
-  final supabaseUrl = dotenv.maybeGet('SUPABASE_URL')?.trim() ?? '';
-  final supabaseKey = dotenv.maybeGet('SUPABASE_KEY')?.trim() ?? '';
-  final geminiApiKey = dotenv.maybeGet('GEMINI_API_KEY')?.trim() ?? '';
-  final groqApiKey = dotenv.maybeGet('GROQ_API_KEY')?.trim() ?? '';
-  final providerName = dotenv.maybeGet('AI_PROVIDER')?.trim() ?? 'gemini';
-  final provider = AiProvider.tryParse(providerName);
-
-  if (provider == null) {
-    runApp(
-      StartupErrorApp(
-        message:
-            'Invalid AI_PROVIDER: "$providerName". Use "gemini" or "groq".',
-      ),
-    );
-    return;
-  }
-
-  final missingConfiguration = <String>[
-    if (supabaseUrl.isEmpty) 'SUPABASE_URL',
-    if (supabaseKey.isEmpty) 'SUPABASE_KEY',
-    if (provider == AiProvider.gemini && geminiApiKey.isEmpty) 'GEMINI_API_KEY',
-    if (provider == AiProvider.groq && groqApiKey.isEmpty) 'GROQ_API_KEY',
-  ];
-  if (missingConfiguration.isNotEmpty) {
-    runApp(
-      StartupErrorApp(
-        message: 'Missing configuration: ${missingConfiguration.join(', ')}',
-      ),
-    );
-    return;
-  }
-
-  try {
-    await Supabase.initialize(url: supabaseUrl, publishableKey: supabaseKey);
-  } catch (error) {
-    runApp(const StartupErrorApp(message: 'Could not initialize the app.'));
-    return;
-  }
-
-  runApp(
-    AidaApp(
-      aiService: switch (provider) {
-        AiProvider.gemini => GeminiService(apiKey: geminiApiKey),
-        AiProvider.groq => GroqService(apiKey: groqApiKey),
-      },
-      chatRepository: ChatRepository(Supabase.instance.client),
-    ),
-  );
 }
 
-class AidaApp extends StatefulWidget {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  
+  try {
+    await dotenv.load(fileName: ".env");
+  } catch (e) {
+    debugPrint("Dotenv loading exception: $e");
+  }
+
+  final supabaseUrl = (dotenv.env['SUPABASE_URL'] ?? '').trim();
+  final supabaseAnonKey = (dotenv.env['SUPABASE_KEY'] ?? dotenv.env['SUPABASE_ANON_KEY'] ?? '').trim();
+
+  if (supabaseUrl.isNotEmpty && supabaseAnonKey.isNotEmpty) {
+    try {
+      await Supabase.initialize(
+        url: supabaseUrl,
+        anonKey: supabaseAnonKey,
+      );
+    } catch (e) {
+      debugPrint("Supabase initialization exception: $e");
+    }
+  }
+
+  runApp(const AidaApp());
+}
+
+class AidaApp extends StatelessWidget {
   const AidaApp({
     super.key,
-    required this.aiService,
-    required this.chatRepository,
+    this.aiService,
+    this.chatRepository,
   });
 
-  final AiService aiService;
-  final MessageRepository chatRepository;
-
-  @override
-  State<AidaApp> createState() => _AidaAppState();
-}
-
-class _AidaAppState extends State<AidaApp> {
-  @override
-  void dispose() {
-    widget.aiService.close();
-    super.dispose();
-  }
+  final dynamic aiService;
+  final dynamic chatRepository;
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'AIDA',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
-      home: ChatPage(
-        aiService: widget.aiService,
-        chatRepository: widget.chatRepository,
-      ),
-    );
-  }
-}
+    final effectiveAiService = aiService as AiService?;
+    final effectiveChatRepository = chatRepository is ConversationRepository
+        ? chatRepository as ConversationRepository
+        : chatRepository is legacy_chat_repository.MessageRepository
+            ? _LegacyMessageRepositoryAdapter(
+                chatRepository as legacy_chat_repository.MessageRepository,
+              )
+            : null;
 
-class StartupErrorApp extends StatelessWidget {
-  const StartupErrorApp({super.key, required this.message});
-
-  final String message;
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      debugShowCheckedModeBanner: false,
-      home: Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: Padding(
-              padding: const EdgeInsets.all(24),
-              child: Text(message, textAlign: TextAlign.center),
-            ),
-          ),
+    if (effectiveAiService != null && effectiveChatRepository != null) {
+      return MaterialApp(
+        title: 'AIDA - AI Personal Assistant',
+        debugShowCheckedModeBanner: false,
+        theme: AppTheme.lightTheme,
+        darkTheme: AppTheme.darkTheme,
+        themeMode: ThemeMode.system,
+        home: ChatPage(
+          aiService: effectiveAiService,
+          chatRepository: effectiveChatRepository,
+          conversationId: '',
+          isDarkMode: false,
+          onThemeChanged: (_) {},
+          onShowRecentChats: () {},
         ),
+      );
+    }
+
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => AuthProvider()),
+        ChangeNotifierProvider(create: (_) => ChatViewModel()),
+      ],
+      child: Consumer<ThemeProvider>(
+        builder: (context, themeProvider, child) {
+          return MaterialApp(
+            title: 'AIDA - AI Personal Assistant',
+            debugShowCheckedModeBanner: false,
+            theme: AppTheme.lightTheme,
+            darkTheme: AppTheme.darkTheme,
+            themeMode: themeProvider.themeMode,
+            home: const SplashView(),
+          );
+        },
       ),
     );
   }
